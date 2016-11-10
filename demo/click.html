@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		.div{
+			width: 100px;
+			height:100px;
+			margin: 10px auto;
+			background: black;			
+		}
+	</style>
+	<script type="text/javascript" src='../js/WQuery.js'></script>
+	<script type="text/javascript">
+		$(function(){
+			console.log($('div').find('p').css('background','green'))
+		})
+	</script>
+</head>
+<body>
+	<div class='div'><p>qweqwe</p></div>
+	<div class='div'><p>qweqweqweqweqw</p></div>	
+	<div class='div'><div style='width: 20px;height: 20px;background: red'></div></div>		
+</body>
+</html>

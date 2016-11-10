@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自定义滚动条</title>
+    <style>
+        #parent {
+            height: 50px;
+            width: 300px;
+            margin: 50px auto;
+            position:relative;
+            background: red;
+        }
+
+        #div1 {
+            height: 50px;
+            width: 20px;
+            position: absolute;
+            background: black;
+        }
+
+        #div2 {
+            width: 200px;
+            height: 400px;
+            position:relative;
+            border: 1px solid red;
+            overflow: hidden;
+        }
+        #div3{
+            position:absolute;
+        }
+    </style>
+    <script src="../js/WQuery.js"></script>
+    <script>
+        $(function () {
+            var div1 = document.getElementById('div1');
+            var oparent = document.getElementById('parent');
+            var div3 = document.getElementById('div3');
+            var div2 = document.getElementById('div2');
+            div1.onmousedown = function (e) {
+                var event = e || window.event;
+                var disX = event.clientX - div1.offsetLeft;
+                var disY = event.clientY - div1.offsetTop;
+                console.log(div1.offsetParent);
+                console.log(div1.offsetLeft);
+                console.log(event);
+
+                document.onmousemove = function (e) {
+                    var event = e || window.event;
+                    var left = parseInt(event.clientX) - disX;
+                    var top = parseInt(event.clientY) - disY;
+                    if (left < 0) {
+                        left = 0;
+                    }
+                    if(left > oparent.offsetWidth - div1.offsetWidth){
+                        left = oparent.offsetWidth - div1.offsetWidth;
+                    }
+                    if (top < oparent.offsetTop) {
+                        top = 0;
+                    }
+                    div1.style.left = left + "px";
+                    div1.style.top = top + "px";
+                }
+
+                document.onmouseup = function () {
+                    document.onmousemove = null;
+                    document.onmouseup = null;
+                }
+            };
+
+            $(oparent).bind('mousewheel',function(event){
+                var bDown = true;
+                bDown = event.wheelDelta?event.wheelDelta<0:event.detail>0;
+                if(bDown)
+                {
+                    setLeft(div1.offsetLeft+10);
+                }
+                else
+                {
+                    setLeft(div1.offsetLeft-10);
+                }
+
+                if(event.preventDefault)
+                {
+                    event.preventDefault();
+                }
+
+                return false;
+            }).bind('DOMMouseScroll',function(event){
+                var bDown = true;
+                bDown = event.wheelDelta?event.wheelDelta<0:event.detail>0;
+                if(bDown)
+                {
+                    setLeft(div1.offsetLeft+10);
+                }
+                else
+                {
+                    setLeft(div1.offsetLeft-10);
+                }
+
+                if(event.preventDefault)
+                {
+                    event.preventDefault();
+                }
+
+                return false;
+            });
+            function setLeft(l)
+            {
+                if(l<0)
+                {
+                    l=0;
+                }
+                else if(l>oparent.offsetWidth-div1.offsetWidth)
+                {
+                    l=oparent.offsetWidth-div1.offsetWidth;
+                }
+
+                div1.style.left=l+'px';
+                var scale=l/(oparent.offsetWidth-div1.offsetWidth);
+
+                div3.style.top=-(div3.offsetHeight-div2.offsetHeight)*scale+'px';
+
+                document.title=scale;
+            }
+        });
+    </script>
+</head>
+<body>
+<div id="parent">
+    <div id="div1"></div>
+</div>
+<div id="div2">
+    <div id="div3">
+        关于妙味
+        妙味课堂是北京妙味趣学信息技术有限公司旗下的IT前端培训品牌，
+        妙味课堂是一支独具特色的IT培训团队，妙味反对传统IT教育枯燥乏味的教学模式，妙味提供一种全新的快乐学习方法！
+        目前主要针对的是javascript培训，同时还提供了css教程、javascript视频、js特效等，最新推出了外地学员们喜欢的javascript网络课程服务，同时还为处于javascript入门阶段的朋友录制了大量javascript视频，其中涉及了大量javascript基础知识，希望妙味课堂推出的javascript网络培训课程能带给大家更多惊喜。
+        妙味讲师：
+        妙味课堂的讲师来自中国最具吸引力的IT企业，如淘宝、ShopEx等。
+        前端开发讲师：刘伟（Leo）
+        WEB 前端开发工程师(5年)、CSS 精品课程讲师(3年)，妙味课堂创始人；
+        曾任北京科尔威视、ShopEx 北京营销中心 ECMall 项目前端架构师；
+        精通 XHTML+CSS 架构，深刻理解 W3C 标准，熟练掌握系统的浏览器兼容性解决方案，
+        擅长大型网站前端架构及调试各类页面错位等诸多兼容性问题的疑难杂症；
+        专注于网站用户体验性研究，并在视频、电子商城、教育平台、企业级应用站点拥有数量庞大的案例和多年实战经验；
+    </div>
+</div>
+</body>
+</html>
