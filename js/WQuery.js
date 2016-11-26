@@ -268,10 +268,6 @@
             }
         },
 
-
-        extend: function (name, fn) {
-            WQuery.prototype[name] = fn;
-        }
     };
 
     WQuery.fn.init.prototype = WQuery.prototype;
@@ -284,7 +280,13 @@
     WQuery.isFunction = function (obj) {
         return typeof obj === 'function';
     }
-
+    WQuery.extend = function (obj) {
+        for (var item in obj) {
+            if (obj.hasOwnProperty(item)) {
+                WQuery.prototype[item] = obj[item];
+            }
+        }
+    }
 
     WQuery.isObject = function (obj) {
 
@@ -298,13 +300,13 @@
             aNew;
         if (WQuery.isArray(aOld)) {
             len = aOld.length;
-            for (i = 0; i< len; i++) {
-                tempObj =  fn.call(aOld[i],i,aOld[i]);
-                if(tempObj){
+            for (i = 0; i < len; i++) {
+                tempObj = fn.call(aOld[i], i, aOld[i]);
+                if (tempObj) {
                     aNew[aNew.length] = tempObj;
                 }
             }
-            return aNew.concat.apply([],aNew);
+            return aNew.concat.apply([], aNew);
         }
     }
 
@@ -334,7 +336,10 @@
 
     //-------------扩展方法-----------------------
     WQuery.extend({
+
+        //注意：所有指定的属性必须用骆驼形式，比如用marginLeft代替margin-left.
         animate: function (oTarget, iType, fnCallBack, fnDuring) {
+
             var i = 0;
             var Wake_MOVE_TYPE = {
                 BUFFER: 1,
@@ -346,13 +351,13 @@
                     currentType = Wake_MOVE_TYPE.BUFFER;
                     break;
                 default:
-                    currentType = iType;
+                    currentType = Wake_MOVE_TYPE[iType];
                     break;
             }
 
 
-            for (i = 0; i < this.elements.length; i++) {
-                startMove.call(this.elements[i], oTarget, currentType, fnCallBack, fnDuring);
+            for (i = 0; i < this.length; i++) {
+                startMove.call(this[i], oTarget, currentType, fnCallBack, fnDuring);
             }
 
             function css(obj, attr, value) {
@@ -390,35 +395,39 @@
 
             function startMove(json, type, fnCall, fnDuring) {
                 var fnMove = null;
-                if (this.timer) {
-                    clearInterval(obj.timer);
+                var This = this;
+                if (this.timer) { //有开就有关
+                    clearInterval(this.timer);
                 }
 
-                switch (iType) {
+                switch (type) {
+                    //缓冲运动
                     case Wake_MOVE_TYPE.BUFFER:
                         fnMove = moveBuffer;
                         break;
+                    //曲线运动
                     case Wake_MOVE_TYPE.FLEX:
                         fnMove = moveFlex;
                         break;
                 }
                 this.timer = setInterval(function () {
-                    fnMove(this, oTarget, fnCallBack, fnDuring);
+                    fnMove.call(This, oTarget, fnCallBack, fnDuring);
                 }, 30)
             };
 
-            function moveBuffer(obj, oTarget, fnCallBack, fnDuring) {
+            function moveBuffer(oTarget, fnCallBack, fnDuring) {
                 var bStop = true;
                 var attr = '';
                 var speed = 0;
                 var cur = 0;
+                var obj = this;
 
                 for (attr in oTarget) {
                     cur = css(obj, attr);
-                    if (oTarget[attr] != cur) {
+                    if (parseFloat(oTarget[attr]) != cur) {
                         bStop = false;
 
-                        speed = (oTarget[attr] - cur) / 5;
+                        speed = (parseFloat(oTarget[attr]) - cur) / 5;
                         speed = speed > 0 ? Math.ceil(speed) : Math.floor(speed);
 
                         css(obj, attr, cur + speed);
@@ -435,27 +444,31 @@
                 }
             };
 
-            function moveFlex(obj, oTarget, fnCallBack, fnDuring) {
+            function moveFlex(oTarget, fnCallBack, fnDuring) {
                 var bStop = true;
                 var attr = '';
                 var speed = 0;
                 var cur = 0;
+                var obj = this;
 
                 for (attr in oTarget) {
                     if (!obj.oSpeed)obj.oSpeed = {};
                     if (!obj.oSpeed[attr])obj.oSpeed[attr] = 0;
                     cur = css(obj, attr);
-                    if (Math.abs(oTarget[attr] - cur) > 1 || Math.abs(obj.oSpeed[attr]) > 1) {
+                    if (Math.abs(parseFloat(oTarget[attr]) - cur) > 1 || Math.abs(obj.oSpeed[attr]) > 1) {
                         bStop = false;
-
-                        obj.oSpeed[attr] += (oTarget[attr] - cur) / 5;
-                        obj.oSpeed[attr] *= 0.7;
+                        // 目标值与当前值一直在减小，当越界时，此时差值为负，当前speed为正，然后减小当前speed
+                        // 知道当前speed为负
+                        obj.oSpeed[attr] += (parseFloat(oTarget[attr]) - cur) / 5;
+                        obj.oSpeed[attr] *= 0.8;
                         var maxSpeed = 65;
                         if (Math.abs(obj.oSpeed[attr]) > maxSpeed) {
                             obj.oSpeed[attr] = obj.oSpeed[attr] > 0 ? maxSpeed : -maxSpeed;
                         }
 
                         css(obj, attr, cur + obj.oSpeed[attr]);
+                    } else {
+                        css(obj, attr, parseFloat(oTarget[attr]));
                     }
                 }
 

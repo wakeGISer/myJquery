@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #div1{
+            position: relative;
+            left:1px;
+            background: red;
+            width: 100px;
+            height:100px;
+        }
+    </style>
+    <script src="../../js/jquery-1.7.1.js"></script>
+    <!--<script src="../../js/WQuery.js"></script>-->
+    <script>
+        $(function () {
+            $('#move').click(function (ev) {
+                $('#div1').animate({
+                    left:"1000px"
+                },"slow",'linear',function () {
+                    console.log(this);
+                })
+            })
+        })
+    </script>
+
+</head>
+<body>
+    <div id="div1"></div>
+    <input id="move" type="button" value="move">
+</body>
+</html>
